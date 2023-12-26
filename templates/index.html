@@ -2,104 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Produtos</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
-            padding: 0;
-            background: #f8f9fa;
-            color: #202124;
-        }
-        .container {
-            max-width: 800px;
-            margin: 30px auto;
-            padding: 20px;
-            background: #fff;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            font-size: 24px;
-            color: #1a73e8;
-            margin-bottom: 20px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 10px;
-            border-bottom: 1px solid #e0e0e0;
-            text-align: left;
-            vertical-align: middle;
-        }
-        .edit-btn, .delete-btn {
-            border: none;
-            background-color: transparent;
-            cursor: pointer;
-        }
-        .edit-btn:hover, .delete-btn:hover {
-            background-color: #e8f0fe;
-        }
-        .edit-btn:before {
-            content: '✎';
-        }
-        .delete-btn:before {
-            content: '✖'; 
-        }
-        a, .edit-btn, .delete-btn {
-            color: #1a73e8;
-            text-decoration: none;
-            font-size: inherit;
-        }
-        .header-bar {
-            background-color: #1a73e8;
-            padding: 10px 0;
-            color: white;
-            text-align: center;
-        }
-    </style>
 </head>
 <body>
-    <div class="header-bar">
-        <h1>Produtos</h1>
-    </div>
-    <div class="container">
-        <a href="/cadastrar">Cadastrar Novo Produto</a>
-        <table>
-            <tr>
-                <th>Nome</th>
-                <th>Quantidade Mínima</th>
-                <th>Quantidade Disponível</th> <!-- Coluna adicionada -->
-                <th>Entrada</th>
-                <th>Saída</th>
-                <th>Ações</th>
-            </tr>
-            {% for produto in produtos %}
-            <tr>
-                <td>{{ produto.nome }}</td>
-                <td>{{ produto.qtd_minima }}</td>
-                <td>{{ produto.qtd_disponivel }}</td> <!-- Exibe a quantidade disponível -->
-                <td>
-                    <form action="{{ url_for('entrada_produto', id=produto.id) }}" method="post">
-                        <input type="number" name="quantidade_entrada" min="1">
-                        <input type="submit" value="Entrada">
-                    </form>
-                </td>
-                <td>
-                    <form action="{{ url_for('saida_produto', id=produto.id) }}" method="post">
-                        <input type="number" name="quantidade_saida" min="1">
-                        <input type="submit" value="Saída">
-                    </form>
-                </td>
-                <td>
-                    <!-- Botões de editar e excluir -->
-                </td>
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Quantidade Mínima</th>
+            <th>Ações</th>
+        </tr>
+        {% for product in data %}
+        <tr>
+            <td>{{ product.id }}</td>
+            <td>{{ product.qtde_min }}</td>
+            <td>
+                <a href="{{ url_for('edit', id=product['id']) }}">Editar</a>
+                <form action="{{ url_for('delete', id=product['id']) }}" method="post">
+                    <button type="submit">Excluir</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
 </body>
 </html>

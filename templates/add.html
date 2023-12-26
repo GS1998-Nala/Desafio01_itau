@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Adicionar Produto</title>
+</head>
+<body>
+    <h1>Adicionar Produto</h1>
+    <form action="{{ url_for('add') }}" method="post">
+        <label for="id">ID:</label>
+        <input type="text" id="id" name="id" required><br>
+        
+        <label for="qtde_min">Quantidade Mínima:</label>
+        <input type="text" id="qtde_min" name="qtde_min" required><br>
+        
+        <input type="submit" value="Adicionar Produto">
+    </form>
+</body>
+</html>

@@ -1,74 +1,69 @@
-from flask import Flask, request, render_template, redirect, url_for
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, render_template, request, redirect, url_for
+import pandas as pd
+import os
+import csv
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///produtos.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+
+# Função para ler o CSV e transformá-lo em uma lista de dicionários
+def read_csv_file(filepath):
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"O arquivo não foi encontrado: {filepath}")
+    return pd.read_csv(filepath, sep=";").to_dict('records')
+
+# Função para escrever dados de volta no arquivo CSV
+def write_csv_file(filepath, data):
+    pd.DataFrame(data).to_csv(filepath, sep=";", index=False)
+
+# Caminho para o arquivo CSV
+csv_file = os.path.join(os.getcwd(), 'instance', 'produtos.csv')
 
 
-class Produto(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(80), nullable=False)
-    qtd_minima = db.Column(db.Integer, nullable=False)
-    qtd_disponivel = db.Column(db.Integer, default=0)  
-
-
-with app.app_context():
-    db.create_all()
-
-@app.route('/produtos')
+# Rota para exibir os dados
+@app.route('/')
 def index():
-    produtos = Produto.query.all()
-    return render_template('index.html', produtos=produtos)
+    try:
+        data = read_csv_file(csv_file)
+    except FileNotFoundError as e:
+        return str(e), 500  # Retorna mensagem de erro com o código 500
+    return render_template('index.html', data=data)
 
-@app.route('/cadastrar', methods=['GET', 'POST'])
-def cadastrar():
+# Rota para editar um registro específico
+@app.route('/edit/<id>', methods=['GET', 'POST'])
+def edit(id):
+    data = read_csv_file(csv_file)
+    product = next((item for item in data if str(item['id']) == id), None)
     if request.method == 'POST':
-        nome_produto = request.form['nome']
-        qtd_minima_produto = int(request.form['qtd_minima'])  
-        produto = Produto(nome=nome_produto, qtd_minima=qtd_minima_produto)
-        db.session.add(produto)
-        db.session.commit()
+        # Atualiza o produto com os novos dados
+        product['qtde_min'] = request.form['qtde_min']
+        write_csv_file(csv_file, data)
         return redirect(url_for('index'))
-    return render_template('cadastrar.html')
+    return render_template('edit.html', product=product)
 
-@app.route('/editar/<int:id>', methods=['GET', 'POST'])
-def editar(id):
-    produto = Produto.query.get_or_404(id)
-    if request.method == 'POST':
-        produto.nome = request.form['nome']
-        produto.qtd_minima = int(request.form['qtd_minima'])
-        db.session.commit()
-        return redirect(url_for('index'))
-    return render_template('editar.html', produto=produto)
-
-@app.route('/excluir/<int:id>', methods=['POST'])
-def excluir(id):
-    produto = Produto.query.get_or_404(id)
-    db.session.delete(produto)
-    db.session.commit()
+# Rota para excluir um registro
+@app.route('/delete/<id>', methods=['POST'])
+def delete(id):
+    data = read_csv_file(csv_file)
+    data = [item for item in data if str(item['id']) != id]
+    write_csv_file(csv_file, data)
     return redirect(url_for('index'))
 
-
-@app.route('/entrada/<int:id>', methods=['POST'])
-def entrada_produto(id):
-    produto = Produto.query.get_or_404(id)
-    quantidade_entrada = int(request.form['quantidade_entrada'])
-    produto.qtd_disponivel += quantidade_entrada
-    db.session.commit()
-    return redirect(url_for('index'))
-
-@app.route('/saida/<int:id>', methods=['POST'])
-def saida_produto(id):
-    produto = Produto.query.get_or_404(id)
-    quantidade_saida = int(request.form['quantidade_saida'])
-    if quantidade_saida <= produto.qtd_disponivel:
-        produto.qtd_disponivel -= quantidade_saida
-        db.session.commit()
-    else:
-        # Tratar erro, não há quantidade suficiente
+# Rota para adicionar um novo registro
+@app.route('/add', methods=['GET', 'POST'])
+def add():
+    if request.method == 'POST':
+        # Recupera os dados do formulário
+        new_id = request.form['id']
+        new_qtde_min = request.form['qtde_min']
+        
+        # Lê os dados atuais e adiciona o novo registro
+        data = read_csv_file(csv_file)
+        data.append({'id': new_id, 'qtde_min': new_qtde_min})
+        
+        # Escreve os dados atualizados de volta no arquivo CSV
+        write_csv_file(csv_file, data)
         return redirect(url_for('index'))
+    return render_template('add.html')
 
 
 if __name__ == '__main__':
