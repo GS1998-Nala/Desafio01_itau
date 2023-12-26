@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Controle de Estoque</title>
+    <link rela"stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            padding: 20px;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input[type="text"], input[type="number"] {
+            padding: 10px;
+            margin-right: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        input[type="submit"] {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #008CBA;
+            color: white;
+            cursor: pointer;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #008CBA;
+            color: white;
+        }
+        a {
+            color: #008CBA;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <h1><i class="fas fa-warehouse"></i> Controle de Estoque</h1>
+    <form method="POST" action="/add">
+        <input type="text" name="name" placeholder="Name">
+        <input type="number" name="quantity" placeholder="Quantity">
+        <input type="number" name="minimum_stock" placeholder="Minimum Stock">
+        <input type="submit" value="Add Item">
+    </form>
+    <table>
+        <tr>
+            <th>Nome</th>
+            <th>Quantidade</th>
+            <th>Quantidade Mínima</th>
+            <th>Ações</th>
+        </tr>
+        {% for item in items %}
+        <tr>
+            <td>{{ item.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>
+                <form action="/update/{{ item.id }}" method="post" style="display: inline-block;">
+                    <input type="number" name="quantity" value="{{ item.quantity }}">
+                    <button type="submit" style="background: none; border: none;">
+                        <i class="fas fa-save"></i>
+                        <span style="display: none;">Salvar</span>
+                    </button>
+                </form>
+                <a href="/delete/{{ item.id }}" style="margin-left: 10px;"><i class="fas fa-trash-alt"></i></a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+</body>
+</html>
