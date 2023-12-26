@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cadastro de Produtos</title>
+    <!-- Inclua seus estilos e cabeçalhos aqui -->
+</head>
+<body>
+    <h1>Cadastro de Produto</h1>
+    <form method="POST" action="/add_product">
+        <label for="name">Nome do Produto:</label>
+        <input type="text" name="name" required>
+        <label for="minimum_stock">Quantidade Mínima:</label>
+        <input type="number" name="minimum_stock" required>
+        <input type="submit" value="Cadastrar Produto">
+    </form>
+</body>
+</html>

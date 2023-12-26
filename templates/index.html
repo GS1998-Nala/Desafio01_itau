@@ -63,21 +63,26 @@
             <th>Nome</th>
             <th>Quantidade</th>
             <th>Quantidade Mínima</th>
-            <th>Ações</th>
+            <th>Ações</th> <!-- Coluna para ações como salvar e excluir -->
         </tr>
         {% for item in items %}
         <tr>
             <td>{{ item.name }}</td>
-            <td>{{ item.quantity }}</td>
             <td>
                 <form action="/update/{{ item.id }}" method="post" style="display: inline-block;">
                     <input type="number" name="quantity" value="{{ item.quantity }}">
-                    <button type="submit" style="background: none; border: none;">
-                        <i class="fas fa-save"></i>
-                        <span style="display: none;">Salvar</span>
-                    </button>
+                    <input type="submit" value="Salvar">
                 </form>
-                <a href="/delete/{{ item.id }}" style="margin-left: 10px;"><i class="fas fa-trash-alt"></i></a>
+            </td>
+            <td>
+                <form action="/update/{{ item.id }}" method="post" style="display: inline-block;">
+                    <input type="number" name="minimum_stock" value="{{ item.minimum_stock }}">
+                    <input type="submit" value="Salvar">
+                </form>
+            </td>
+            <td>
+                <!-- Botão para excluir o item -->
+                <a href="/delete/{{ item.id }}"><i class="fas fa-trash-alt"></i></a>
             </td>
         </tr>
         {% endfor %}

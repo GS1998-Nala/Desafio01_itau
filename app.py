@@ -32,14 +32,15 @@ def add():
 
 @app.route('/update/<int:id>', methods=['POST'])
 def update(id):
-    quantity = request.form.get('quantity')
     item = Item.query.get(id)
     if item:
-        item.quantity = quantity
+        item.quantity = request.form.get('quantity')
+        item.minimum_stock = request.form.get('minimum_stock')
         db.session.commit()
         return redirect(url_for('index'))
     else:
         return "Error: No such item found.", 404
+
 
 @app.route('/delete/<int:id>')
 def delete(id):
