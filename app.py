@@ -15,7 +15,11 @@ class Item(db.Model):
 @app.route('/')
 def index():
     items = Item.query.all()
+    # Adiciona o ícone de status para cada item.
+    for item in items:
+        item.status_icon = '<i class="fas fa-circle" style="color: green;"></i>' if item.quantity > item.minimum_stock else '<i class="fas fa-circle" style="color: red;"></i>'
     return render_template('index.html', items=items)
+
 
 
 @app.route('/add', methods=['POST'])
@@ -32,14 +36,22 @@ def add():
 
 @app.route('/update/<int:id>', methods=['POST'])
 def update(id):
-    quantity = request.form.get('quantity')
+    # Pega a quantidade e a quantidade mínima do formulário.
+    quantity = request.form.get('quantity', type=int)
+    minimum_stock = request.form.get('minimum_stock', type=int)
+    
     item = Item.query.get(id)
     if item:
         item.quantity = quantity
+        item.minimum_stock = minimum_stock  # Atualiza a quantidade mínima também.
         db.session.commit()
-        return redirect(url_for('index'))
+        
+        # Retorna um ícone dependendo da comparação entre quantidade e quantidade mínima.
+        status_icon = '<i class="fas fa-circle" style="color: green;"></i>' if quantity > minimum_stock else '<i class="fas fa-circle" style="color: red;"></i>'
+        return redirect(url_for('index', status_icon=status_icon))
     else:
         return "Error: No such item found.", 404
+
 
 @app.route('/delete/<int:id>')
 def delete(id):

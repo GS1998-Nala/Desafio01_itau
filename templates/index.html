@@ -1,8 +1,10 @@
 <!DOCTYPE html>
+
 <html>
 <head>
     <title>Controle de Estoque</title>
-    <link rela"stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -47,6 +49,10 @@
         a:hover {
             text-decoration: underline;
         }
+        /* Seus estilos existentes */
+        .status-icon.green { color: green; }
+        .status-icon.red { color: red; }
+        /* Adicione mais estilos conforme necessário */
     </style>
 </head>
 
@@ -63,25 +69,50 @@
             <th>Nome</th>
             <th>Quantidade</th>
             <th>Quantidade Mínima</th>
+            <th>Status</th>
             <th>Ações</th>
         </tr>
         {% for item in items %}
-        <tr>
+        <tr data-id="{{ item.id }}">
             <td>{{ item.name }}</td>
-            <td>{{ item.quantity }}</td>
+            <td contenteditable="true" class="quantity">{{ item.quantity }}</td>
+            <td contenteditable="true" class="minimum-stock">{{ item.minimum_stock }}</td>
+            <td class="status-icon {{ 'green' if item.quantity > item.minimum_stock else 'red' }}">
+                <i class="fas fa-circle"></i>
+            </td>
             <td>
-                <form action="/update/{{ item.id }}" method="post" style="display: inline-block;">
-                    <input type="number" name="quantity" value="{{ item.quantity }}">
-                    <button type="submit" style="background: none; border: none;">
-                        <i class="fas fa-save"></i>
-                        <span style="display: none;">Salvar</span>
-                    </button>
-                </form>
-                <a href="/delete/{{ item.id }}" style="margin-left: 10px;"><i class="fas fa-trash-alt"></i></a>
+                <button type="button" class="save-btn" onclick="updateItem({{ item.id }})">
+                    <i class="fas fa-save"></i>
+                </button>
+                <a href="#" class="delete-btn" onclick="deleteItem({{ item.id }}); return false;"><i class="fas fa-trash-alt"></i></a>
             </td>
         </tr>
         {% endfor %}
     </table>
 
+    <script>
+        function updateItem(itemId) {
+            var row = $('tr[data-id="' + itemId + '"]');
+            var quantity = row.find('.quantity').text();
+            var minimumStock = row.find('.minimum-stock').text();
+            
+            $.post('/update/' + itemId, { quantity: quantity, minimum_stock: minimumStock })
+            .done(function(response) {
+                // Atualiza o ícone de status conforme necessário
+                var statusCell = row.find('.status-icon');
+                statusCell.removeClass('green red');
+                statusCell.addClass(response.quantity > response.minimum_stock ? 'green' : 'red');
+            });
+        }
+
+        function deleteItem(itemId) {
+            if(confirm('Tem certeza que deseja excluir este item?')) {
+                $.post('/delete/' + itemId)
+                .done(function(response) {
+                    $('tr[data-id="' + itemId + '"]').remove();
+                });
+            }
+        }
+    </script>
 </body>
 </html>
