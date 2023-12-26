@@ -1,19 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Adicionar Produto</title>
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block content %}
     <h1>Adicionar Produto</h1>
-    <form action="{{ url_for('add') }}" method="post">
-        <label for="id">ID:</label>
-        <input type="text" id="id" name="id" required><br>
+    <form action="{{ url_for('add') }}" method="post" class="mt-3">
+        <div class="form-group">
+            <label for="id">ID:</label>
+            <input type="text" class="form-control" id="id" name="id" required>
+        </div>
         
-        <label for="qtde_min">Quantidade Mínima:</label>
-        <input type="text" id="qtde_min" name="qtde_min" required><br>
+        <div class="form-group">
+            <label for="qtde_min">Quantidade Mínima:</label>
+            <input type="text" class="form-control" id="qtde_min" name="qtde_min" required>
+        </div>
         
-        <input type="submit" value="Adicionar Produto">
+        <button type="submit" class="btn btn-primary">Adicionar Produto</button>
     </form>
-</body>
-</html>
+{% endblock %}
+

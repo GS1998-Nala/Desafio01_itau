@@ -1,28 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Lista de Produtos</title>
 </head>
+
 <body>
-    <table>
-        <tr>
-            <th>ID</th>
-            <th>Quantidade Mínima</th>
-            <th>Ações</th>
-        </tr>
-        {% for product in data %}
-        <tr>
-            <td>{{ product.id }}</td>
-            <td>{{ product.qtde_min }}</td>
-            <td>
-                <a href="{{ url_for('edit', id=product['id']) }}">Editar</a>
-                <form action="{{ url_for('delete', id=product['id']) }}" method="post">
-                    <button type="submit">Excluir</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
+    
+    <div class="my-4">
+        <h2 class="float-left">Lista de Produtos</h2>
+        <a href="{{ url_for('add') }}" class="btn btn-success float-right">
+            <i class="material-icons">add</i> Adicionar Produto
+        </a>
+        <div class="clearfix"></div> <!-- Clear float -->
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Quantidade Mínima</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in data %}
+            <tr>
+                <td>{{ product.id }}</td>
+                <td>{{ product.qtde_min }}</td>
+                <td>
+                    <a href="{{ url_for('edit', id=product['id']) }}" class="btn btn-primary">Editar</a>
+                    <form action="{{ url_for('delete', id=product['id']) }}" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-danger">Excluir</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
 </body>
 </html>
+{% endblock %}

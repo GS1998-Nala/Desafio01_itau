@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Estoque</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Quantidade Mínima</th>
+            <th>Total Entradas</th>
+            <th>Total Saídas</th>
+            <th>Resultado</th>
+            <th class="text-center">Alerta</th> <!-- Adiciona alinhamento central ao cabeçalho da coluna -->
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in data %}
+        <tr>
+            <td>{{ item.id }}</td>
+            <td>{{ item.qtde_min }}</td>
+            <td>{{ item.total_entradas }}</td>
+            <td>{{ item.total_saidas }}</td>
+            <td>{{ item.resultado }}</td>
+            <td class="text-center"> <!-- Adiciona alinhamento central ao conteúdo da célula -->
+                {% if item.resultado <= item.qtde_min %}
+                    <span class="badge badge-warning badge-pill d-block">Atenção: Baixo Estoque!</span>
+                {% else %}
+                    <span class="badge badge-success badge-pill d-block">Estoque Adequado</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+

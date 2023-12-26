@@ -1,0 +1,24 @@
+<!-- saidas.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Saídas</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Quantidade</th>
+            <th>Data</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for saida in data %}
+        <tr>
+            <td>{{ saida.id }}</td>
+            <td>{{ saida.Qtd }}</td>
+            <td>{{ saida.Data }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

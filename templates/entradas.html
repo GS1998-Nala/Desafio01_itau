@@ -1,0 +1,24 @@
+<!-- Dentro de entradas.html ou saidas.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Entradas</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Quantidade</th>
+            <th>Data</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for entrada in data %}
+        <tr>
+            <td>{{ entrada.id }}</td>
+            <td>{{ entrada.Qtd }}</td>
+            <td>{{ entrada.Data }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
