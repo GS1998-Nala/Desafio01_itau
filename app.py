@@ -2,57 +2,33 @@ from flask import Flask, request, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-app.secret_key = 'senha11314314'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///items.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///produtos.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-class Item(db.Model):
+class Produto(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False)
-    quantity = db.Column(db.Integer, nullable=False)
-    minimum_stock = db.Column(db.Integer, nullable=False)  # New field
+    nome = db.Column(db.String(80), nullable=False)
+    preco = db.Column(db.Float, nullable=False)
+
+with app.app_context():
+    db.create_all()
 
 @app.route('/')
 def index():
-    items = Item.query.all()
-    return render_template('index.html', items=items)
+    produtos = Produto.query.all()
+    return render_template('index.html', produtos=produtos)
 
-
-@app.route('/add', methods=['POST'])
-def add():
-    name = request.form.get('name')
-    quantity = request.form.get('quantity')
-    minimum_stock = request.form.get('minimum_stock')  # Get minimum_stock from form
-
-    new_item = Item(name=name, quantity=quantity, minimum_stock=minimum_stock)
-    db.session.add(new_item)
-    db.session.commit()
-
-    return redirect(url_for('index'))
-
-@app.route('/update/<int:id>', methods=['POST'])
-def update(id):
-    item = Item.query.get(id)
-    if item:
-        item.quantity = request.form.get('quantity')
-        item.minimum_stock = request.form.get('minimum_stock')
+@app.route('/cadastrar', methods=['GET', 'POST'])
+def cadastrar():
+    if request.method == 'POST':
+        nome_produto = request.form['nome']
+        preco_produto = request.form['preco']
+        produto = Produto(nome=nome_produto, preco=preco_produto)
+        db.session.add(produto)
         db.session.commit()
         return redirect(url_for('index'))
-    else:
-        return "Error: No such item found.", 404
-
-
-@app.route('/delete/<int:id>')
-def delete(id):
-    item = Item.query.get(id)
-    if item:
-        db.session.delete(item)
-        db.session.commit()
-        return redirect(url_for('index'))
-    else:
-        return "Error: No such item found.", 404
+    return render_template('cadastrar.html')
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
     app.run(debug=True)
