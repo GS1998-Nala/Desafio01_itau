@@ -152,17 +152,6 @@ def add_entrada():
     # Se for GET, simplesmente renderizar o template com o formulário de entrada
     return render_template('add_entrada.html')
 
-
-@app.route('/delete_entrada/<entrada_id>', methods=['POST'])
-def delete_entrada(entrada_id):
-    csv_file = os.path.join(os.getcwd(), 'instance', 'entradas.csv')
-    data = read_csv_file(csv_file)
-    data = [item for item in data if str(item['id']) !=entrada_id]
-    write_csv_file(csv_file, data)
-    return redirect(url_for('entradas'))
-
-
-
         
 if __name__ == '__main__':
     app.run(debug=True)

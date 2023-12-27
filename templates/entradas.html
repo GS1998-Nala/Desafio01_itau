@@ -20,13 +20,6 @@
             <td>{{ entrada.id }}</td>
             <td>{{ entrada.Qtd }}</td>
             <td>{{ entrada.Data }}</td>
-            <td>
-                <!-- Botão Editar -->
-                <!-- Botão Excluir -->
-                <form action="{{ url_for('delete_entrada', entrada_id=entrada.id) }}" method="post" onsubmit="return confirm('Tem certeza que deseja excluir?');" style="display: inline;">
-                    <button type="submit" class="btn btn-danger">Excluir</button>
-                </form>
-            </td>
         </tr>
         {% endfor %}
     </tbody>
