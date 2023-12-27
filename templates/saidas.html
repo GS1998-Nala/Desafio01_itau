@@ -3,6 +3,15 @@
 
 {% block content %}
 <h2>Saídas</h2>
+
+<div class="my-4">
+    <h2 class="float-left">Lista de Produtos</h2>
+    <a href="{{ url_for('add') }}" class="btn btn-success float-right">
+        <i class="material-icons">add</i> Adicionar Produto
+    </a>
+    <div class="clearfix"></div> <!-- Clear float -->
+</div>
+
 <table class="table">
     <thead>
         <tr>

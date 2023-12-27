@@ -1,5 +1,4 @@
 from flask import Flask, render_template, redirect, url_for, flash, request
-from flask_wtf.csrf import CSRFProtect
 import pandas as pd
 import os
 import csv
@@ -7,7 +6,6 @@ from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'ewwegrgr2545'
-csrf = CSRFProtect(app)
 
 
 def read_csv_file(filepath):
@@ -23,7 +21,7 @@ def read_csv(filepath):
 def write_csv_file(filepath, data):
     pd.DataFrame(data).to_csv(filepath, sep=";", index=False)
 
-@app.route('/prod')
+@app.route('/')
 def index():
     try:
         csv_file = os.path.join(os.getcwd(), 'instance', 'produtos.csv')
@@ -114,32 +112,69 @@ def saidas():
 
 @app.route('/repor_estoque/<id>', methods=['POST'])
 def repor_estoque(id):
-    try:
-        # Ler os dados dos arquivos CSV
-        entradas_csv = os.path.join(os.getcwd(), 'instance', 'entradas.csv')
+    if request.method == 'POST':
+        
         produtos_df = read_csv(os.path.join(os.getcwd(), 'instance', 'produtos.csv'))
-        entradas_df = read_csv(entradas_csv)
 
-        # Encontrar o produto correspondente pelo ID e obter a qtd_min
-        produto = produtos_df.loc[produtos_df['id'] == id]
-        if produto.empty:
-            flash('Produto não encontrado.', 'danger')
-            return redirect(url_for('estoque'))
-        
-        qtd_min = produto.iloc[0]['qtde_min']  
+        new_id = id
+        new_qtd = produtos_df.loc[produtos_df['id'] == id, 'qtde_min'].iloc[0]
+        new_data = datetime.now().strftime('%d/%m/%Y')
 
-        # Criar o novo registro para adicionar ao DataFrame de entradas
-        nova_entrada = {'id': id, 'Qtd': qtd_min, 'Data': datetime.now().strftime('%d/%m/%Y')}
-        entradas_df = entradas_df.append(nova_entrada, ignore_index=True)
-        
-        # Escrever o DataFrame atualizado de volta para o CSV
-        write_csv_file(entradas_csv, entradas_df)
-        
-        flash('Reposição automática realizada com sucesso!', 'success')
-    except Exception as e:
-        flash(f'Erro ao repor estoque: {e}', 'danger')
+        # Ler o arquivo existente e adicionar os novos dados
+        entrada_file = os.path.join(os.getcwd(), 'instance', 'entradas.csv')
+        entradas_df =  read_csv_file(entrada_file)
+        entradas_df.append({'id': new_id, 'Qtd': new_qtd, 'Data': new_data})
+            
+        # Escrever de volta no arquivo CSV
+        write_csv_file(entrada_file, entradas_df)
+        flash('Entrada adicionada com sucesso!', 'success')
+    return redirect(url_for('entradas'))
 
-    return redirect(url_for('estoque'))
+
+
+@app.route('/add_entrada', methods=['GET', 'POST'])
+def add_entrada():
+    if request.method == 'POST':
+        # Obter dados do formulário
+        new_id = request.form['id']
+        new_qtd = request.form['qtd']
+        new_data = request.form['data']
+
+        # Ler o arquivo existente e adicionar os novos dados
+        entrada_file = os.path.join(os.getcwd(), 'instance', 'entradas.csv')
+        entradas_df =  read_csv_file(entrada_file)
+        entradas_df.append({'id': new_id, 'Qtd': new_qtd, 'Data': new_data})
+        
+        # Escrever de volta no arquivo CSV
+        write_csv_file(entrada_file, entradas_df)
+        flash('Entrada adicionada com sucesso!', 'success')
+        return redirect(url_for('entradas'))
+    
+    # Se for GET, simplesmente renderizar o template com o formulário de entrada
+    return render_template('add_entrada.html')
+
+@app.route('/edit_entrada/<entrada_id>', methods=['GET', 'POST'])
+def edit_entrada(entrada_id):
+    entrada_file = os.path.join(os.getcwd(), 'instance', 'entradas.csv')
+    entradas_df = read_csv_file(entrada_file)
+
+    if request.method == 'POST':
+        # Substitua 'nome_do_campo' pelos nomes dos campos do seu formulário
+        new_data = {
+            'id': request.form.get('id', ''),
+            'Qtd': request.form.get('qtd', ''),
+            'Data': request.form.get('data', '')
+        }
+        entradas_df.loc[entradas_df['id'] == entrada_id] = new_data
+        write_csv_file(entrada_file, entradas_df)
+        flash('Entrada atualizada com sucesso!')
+        return redirect(url_for('entradas'))
+
+    # Se for GET, renderize o formulário de edição com os dados atuais da entrada
+    entrada_atual = entradas_df.loc[entradas_df['id'] == entrada_id].to_dict('records')[0]
+    return render_template('edit_entrada.html', entrada=entrada_atual)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
