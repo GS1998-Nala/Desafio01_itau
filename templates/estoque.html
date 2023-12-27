@@ -9,8 +9,10 @@
             <th>Quantidade Mínima</th>
             <th>Total Entradas</th>
             <th>Total Saídas</th>
-            <th>Resultado</th>
-            <th class="text-center">Alerta</th> <!-- Adiciona alinhamento central ao cabeçalho da coluna -->
+            <th>Total Stock</th>
+            <th>Alerta</th>
+            <th>Ações</th>
+             
         </tr>
     </thead>
     <tbody>
@@ -28,6 +30,15 @@
                     <span class="badge badge-success badge-pill d-block">Estoque Adequado</span>
                 {% endif %}
             </td>
+
+            <td class="text-center">
+                {% if item.resultado <= item.qtde_min %}
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="location.href='{{ url_for('repor_estoque', id=item.id) }}'">
+                        Repor Estoque
+                    </button>
+                {% endif %}
+            </td>
+
         </tr>
         {% endfor %}
     </tbody>

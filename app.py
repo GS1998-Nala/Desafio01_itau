@@ -1,10 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, flash, request
 import pandas as pd
 import os
 import csv
+from datetime import datetime
 
 app = Flask(__name__)
 
+app.secret_key = 'ewwegrgr2545'
 
 def read_csv_file(filepath):
     if not os.path.exists(filepath):
@@ -15,8 +17,6 @@ def read_csv(filepath):
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"O arquivo não foi encontrado: {filepath}")
     return pd.read_csv(filepath, sep=";")
-
-
 
 def write_csv_file(filepath, data):
     pd.DataFrame(data).to_csv(filepath, sep=";", index=False)
@@ -64,6 +64,7 @@ def add():
         
         # Escreve os dados atualizados de volta no arquivo CSV
         write_csv_file(csv_file, data)
+
         return redirect(url_for('index'))
     return render_template('add.html')
 
@@ -108,6 +109,35 @@ def saidas():
     data_saidas = read_csv_file(saida_file)
     return render_template('saidas.html', data=data_saidas)
 
+
+@app.route('/repor_estoque/<id>')
+def repor_estoque(id):
+    try:
+        # Ler os dados dos arquivos CSV
+        entradas_csv = os.path.join(os.getcwd(), 'instance', 'entradas.csv')
+        produtos_df = read_csv(os.path.join(os.getcwd(), 'instance', 'produtos.csv'))
+        entradas_df = read_csv(entradas_csv)
+
+        # Encontrar o produto correspondente pelo ID e obter a qtd_min
+        produto = produtos_df.loc[produtos_df['id'] == id]
+        if produto.empty:
+            flash('Produto não encontrado.', 'danger')
+            return redirect(url_for('estoque'))
+        
+        qtd_min = produto.iloc[0]['qtde_min']  
+        
+        # Criar o novo registro para adicionar ao DataFrame de entradas
+        nova_entrada = {'id': id, 'Qtd': qtd_min, 'Data': datetime.now().strftime('%d/%m/%Y')}
+        entradas_df = entradas_df.append(nova_entrada, ignore_index=True)
+        
+        # Escrever o DataFrame atualizado de volta para o CSV
+        write_csv_file(entradas_csv, entradas_df)
+        
+        flash('Reposição automática realizada com sucesso!', 'success')
+    except Exception as e:
+        flash(f'Erro ao repor estoque: {e}', 'danger')
+
+    return redirect(url_for('estoque'))
 
 if __name__ == '__main__':
     app.run(debug=True)
