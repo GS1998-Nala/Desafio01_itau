@@ -131,7 +131,6 @@ def repor_estoque(id):
     return redirect(url_for('entradas'))
 
 
-
 @app.route('/add_entrada', methods=['GET', 'POST'])
 def add_entrada():
     if request.method == 'POST':
@@ -153,28 +152,17 @@ def add_entrada():
     # Se for GET, simplesmente renderizar o template com o formulário de entrada
     return render_template('add_entrada.html')
 
-@app.route('/edit_entrada/<entrada_id>', methods=['GET', 'POST'])
-def edit_entrada(entrada_id):
-    entrada_file = os.path.join(os.getcwd(), 'instance', 'entradas.csv')
-    entradas_df = read_csv_file(entrada_file)
 
-    if request.method == 'POST':
-        # Substitua 'nome_do_campo' pelos nomes dos campos do seu formulário
-        new_data = {
-            'id': request.form.get('id', ''),
-            'Qtd': request.form.get('qtd', ''),
-            'Data': request.form.get('data', '')
-        }
-        entradas_df.loc[entradas_df['id'] == entrada_id] = new_data
-        write_csv_file(entrada_file, entradas_df)
-        flash('Entrada atualizada com sucesso!')
-        return redirect(url_for('entradas'))
-
-    # Se for GET, renderize o formulário de edição com os dados atuais da entrada
-    entrada_atual = entradas_df.loc[entradas_df['id'] == entrada_id].to_dict('records')[0]
-    return render_template('edit_entrada.html', entrada=entrada_atual)
+@app.route('/delete_entrada/<entrada_id>', methods=['POST'])
+def delete_entrada(entrada_id):
+    csv_file = os.path.join(os.getcwd(), 'instance', 'entradas.csv')
+    data = read_csv_file(csv_file)
+    data = [item for item in data if str(item['id']) !=entrada_id]
+    write_csv_file(csv_file, data)
+    return redirect(url_for('entradas'))
 
 
 
+        
 if __name__ == '__main__':
     app.run(debug=True)
