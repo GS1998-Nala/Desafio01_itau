@@ -33,9 +33,11 @@
 
             <td class="text-center">
                 {% if item.resultado <= item.qtde_min %}
-                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="location.href='{{ url_for('repor_estoque', id=item.id) }}'">
-                        Repor Estoque
-                    </button>
+                    <!-- Formulário para repor estoque -->
+                    <form action="{{ url_for('repor_estoque', id=item.id) }}" method="post">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                        <button type="submit" class="btn btn-sm btn-warning">Repor Estoque</button>
+                    </form>
                 {% endif %}
             </td>
 

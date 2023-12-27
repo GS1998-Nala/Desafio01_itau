@@ -1,12 +1,14 @@
 from flask import Flask, render_template, redirect, url_for, flash, request
+from flask_wtf.csrf import CSRFProtect
 import pandas as pd
 import os
 import csv
 from datetime import datetime
 
 app = Flask(__name__)
-
 app.secret_key = 'ewwegrgr2545'
+csrf = CSRFProtect(app)
+
 
 def read_csv_file(filepath):
     if not os.path.exists(filepath):
@@ -110,7 +112,7 @@ def saidas():
     return render_template('saidas.html', data=data_saidas)
 
 
-@app.route('/repor_estoque/<id>')
+@app.route('/repor_estoque/<id>', methods=['POST'])
 def repor_estoque(id):
     try:
         # Ler os dados dos arquivos CSV
@@ -125,7 +127,7 @@ def repor_estoque(id):
             return redirect(url_for('estoque'))
         
         qtd_min = produto.iloc[0]['qtde_min']  
-        
+
         # Criar o novo registro para adicionar ao DataFrame de entradas
         nova_entrada = {'id': id, 'Qtd': qtd_min, 'Data': datetime.now().strftime('%d/%m/%Y')}
         entradas_df = entradas_df.append(nova_entrada, ignore_index=True)
